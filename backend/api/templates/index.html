@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #aadd;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-container {
+            background-color: #7867;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+        form div {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #333333;
+            color: #aadd;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .product-table th, .product-table td {
+            padding: 10px;
+            border: 1px solid #555;
+            text-align: left;
+        }
+        .product-table th {
+            background-color: #555;
+        }
+        .error-message {
+            color: darkred;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .no-products {
+            text-align: center;
+            margin-top: 20px;
+            color: #aadd;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="form-container">
+            <h2>Создать продукт</h2>
+            <form id="productForm">
+                <div>
+                    <label for="title">Заголовок</label>
+                    <input type="text" id="title" name="title">
+                </div>
+                <div>
+                    <label for="description">Описание</label>
+                    <textarea id="description" name="description"></textarea>
+                </div>
+                <div>
+                    <label for="price">Цена</label>
+                    <input type="number" max="99999999" id="price" step="0.01" name="price">
+                </div>
+                <button type="submit">Создать продукт</button>
+            </form>
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+
+        <div class="product-list">
+            <h2>Таблица продуктов</h2>
+            <table class="product-table" id="productTable">
+                <thead>
+                    <tr>
+                        <th>Заголовок</th>
+                        <th>Описание</th>
+                        <th>Цена</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Products -->
+                </tbody>
+            </table>
+            <div class="no-products" id="noProducts">No products available.</div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('productForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const price = document.getElementById('price').value;
+
+            const data = {
+                title: title,
+                description: description,
+                price: parseFloat(price),
+            };
+
+            fetch('api/create-product/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 400) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.detail);
+                        });
+                    }
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(product => {
+                addProductToTable(product);
+                document.getElementById('productForm').reset();
+                document.getElementById('noProducts').style.display = 'none';
+                document.getElementById('errorMessage').textContent = '';
+            })
+            .catch(error => {
+                document.getElementById('errorMessage').textContent = error.message;
+                console.error('Error:', error);
+            });
+        });
+
+        function loadProducts() {
+            fetch('api/products/')
+            .then(response => response.json())
+            .then(products => {
+                const productTableBody = document.querySelector('#productTable tbody');
+                productTableBody.innerHTML = '';
+
+                if (products.length > 0) {
+                    products.forEach(product => addProductToTable(product));
+                    document.getElementById('noProducts').style.display = 'none';
+                } else {
+                    document.getElementById('noProducts').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Loading products error:', error);
+            });
+        }
+
+        function addProductToTable(product) {
+            const productTableBody = document.querySelector('#productTable tbody');
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${product.title}</td>
+                <td>${product.description}</td>
+                <td>${product.price}</td>
+            `;
+
+            productTableBody.appendChild(row);
+        }
+
+        window.onload = loadProducts;
+    </script>
+
+</body>
+</html>
