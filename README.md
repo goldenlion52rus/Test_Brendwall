@@ -15,8 +15,8 @@ add-product/ - создать продукт через html страницу
 Клонировать репозиторий и перейти в него в командной строке:
 
 ```
-git clone https://github.com/goldenlion52rus/Project_Brendwall
-cd Project_Brendwall
+git clone https://github.com/goldenlion52rus/Test_Brendwall
+cd Test_Brendwall
 ```
 
 Cоздать и активировать виртуальное окружение:
