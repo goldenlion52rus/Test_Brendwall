@@ -22,7 +22,7 @@ class ProductViewTests(TestCase):
         Product.objects.create(title='Product 1',
                                description='Desc 1', price=10.00)
 
-        request = self.factory.get(reverse('product-list'))
+        request = self.factory.get(reverse('products'))
         response = self.view(request)
 
         self.assertEqual(response.status_code, 200)
