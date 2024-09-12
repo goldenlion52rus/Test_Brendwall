@@ -12,7 +12,7 @@ class ProductViewTests(TestCase):
         self.view = ProductView.as_view()
 
     def test_get_empty_queryset(self):
-        request = self.factory.get(reverse('product-list'))
+        request = self.factory.get(reverse('products'))
         response = self.view(request)
 
         self.assertEqual(response.status_code, 200)
@@ -32,7 +32,7 @@ class ProductViewTests(TestCase):
 
     def test_create_product(self):
         data = {'title': 'Product 2', 'description': 'Desc 2', 'price': 20.00}
-        request = self.factory.post(reverse('product-list'), data=data)
+        request = self.factory.post(reverse('products'), data=data)
         response = self.view(request)
 
         self.assertEqual(response.status_code, 201)
@@ -42,7 +42,7 @@ class ProductViewTests(TestCase):
 
     def test_create_product_invalid_price(self):
         data = {'title': 'Product 3', 'description': 'Desc 3', 'price': -10.00}
-        request = self.factory.post(reverse('product-list'), data=data)
+        request = self.factory.post(reverse('products'), data=data)
         response = self.view(request)
 
         self.assertEqual(response.status_code, 400)
@@ -52,7 +52,7 @@ class ProductViewTests(TestCase):
 
     def test_create_product_invalid_title(self):
         data = {'title': '', 'description': 'Desc 4', 'price': 15.00}
-        request = self.factory.post(reverse('product-list'), data=data)
+        request = self.factory.post(reverse('products'), data=data)
         response = self.view(request)
 
         self.assertEqual(response.status_code, 400)
